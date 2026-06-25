@@ -181,12 +181,12 @@ void ins_CMP(CPU_6502* cpu, uint16_t addr) {
     {
         cpu->Status |= FLAG_C;
     }else{
-        cpu->Status |= FLAG_N
+        cpu->Status |= FLAG_N;
     }
 }
 
 // BRE: Branch Equal
-void ins_BRE(CPU_6502* cpu, uint16_t addr) {
+void ins_BEQ(CPU_6502* cpu, uint16_t addr) {
     if((cpu->Status & FLAG_Z) == FLAG_Z)
     {
         uint8_t data = cpu_read(cpu->PC);
@@ -207,7 +207,7 @@ void ins_JSR(CPU_6502* cpu, uint16_t addr) {
 }
 
 // JMP: Jump
-void ins_JSR(CPU_6502* cpu, uint16_t addr) {
+void ins_JMP(CPU_6502* cpu, uint16_t addr) {
     cpu->PC = addr;
 }
 
@@ -237,7 +237,7 @@ void ins_PHA(CPU_6502* cpu, uint16_t addr) {
 }
 
 // PLA: Pop Accumulator from Stack
-void ins_PHA(CPU_6502* cpu, uint16_t addr) {
+void ins_PLA(CPU_6502* cpu, uint16_t addr) {
     cpu->A = stack_pop(cpu);
 }
 
@@ -300,7 +300,7 @@ void initialize_opcode_matrix() {
     opcode_matrix[0xC9] = (Instruction){ ins_CMP, mode_IMM, 2 }; // CMP Immediate
     opcode_matrix[0xDD] = (Instruction){ ins_CMP, mode_ABX, 4 }; // CMP Immediate
     opcode_matrix[0x48] = (Instruction){ ins_PHA, NULL, 3 }; // PHA (stack push accumulator)
-    opcode_matrix[0x68] = (Instruction){ ins_PLA, NULL, 4 }; // PHA (stack push accumulator)
+    opcode_matrix[0x68] = (Instruction){ ins_PLA, NULL, 4 }; // PLA (stack pop accumulator)
     opcode_matrix[0xA0] = (Instruction){ ins_LDY, mode_IMM, 2 }; // LDY Immediate
     opcode_matrix[0xB1] = (Instruction){ ins_LDA, mode_IND_Y, 5 }; // LDA indirect Y
     opcode_matrix[0xAD] = (Instruction){ ins_LDA, mode_ABS, 4}; // LDA Absolute
