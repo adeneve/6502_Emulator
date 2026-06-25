@@ -1,0 +1,221 @@
+; pseudo-code assembler in 6502 assembly 
+
+; data section will start at address 0x5000
+
+; part 1, set up data section
+; remember, 6502 is little endian
+
+.org $0000
+SOURCE_PTR_LOW: .byte $00
+SOURCE_PTR_HIGH: .byte $40
+
+TGT_PTR_LOW: .byte $00
+TGT_PTR_HIGH: .byte $50
+
+OPCODE_STR_LOW: .byte $00
+OPCODE_STR_HIGH: .byte $70
+OPCODE_OFFSET: .byte $00
+OPCODE_IDX: .byte $00
+
+TOKEN_BUFFER_PTR: .byte $01
+
+other scratch space
+.org $1000
+
+;opcode strings 7000 - 7100
+.org $7000   ; 'L'          'D'       'A'
+OPCODES_STR: .byte $4C .byte $44 .byte $41  ; ... etc
+
+;dynamic label space 7111 - 7999
+.org $7111
+
+
+;part 2 program section
+
+.org $8000
+; read character by character fom source_ptr
+; if first 3 characters is not an opcode, then keep reading charactes, if we see a ':' we expect it to be a label
+; create a buffer space of characters we have read so far since it might be a label
+; if second character or later is ':' it is a label, must be followed by whitespace
+
+main:
+
+; read opCode or label
+;keep reading until we encounter a space character
+
+;read line pseudocode
+;if token buffer has length 0:
+	;skip any spaces
+	;skip newline characters
+	;if a semicolon is encountered, skip until the next newline character
+	; (skip means advance source pointer and jump back to main)
+
+LDA $1000
+CMP #$00
+JSR READ_LINE_PRE_CHECK
+
+LDY #$00
+LDA ($00),Y
+
+CMP #$20 ; we could have a space '$20' or newline
+BEQ PARSE_OPCODE_ENTRY_LABEL_TOKEN
+
+CMP #$0A
+BEQ PARSE_OPCODE_ENTRY_LABEL_TOKEN
+
+;else store current characters into buffer
+;push character to stack
+PHA
+
+; increment source pointer
+; this can be a subroutine
+JSR INCREMENT_SOURCE_PTR
+
+;pull character back into A and store it to a buffer
+PLA
+
+; read string buffer length
+LDX $1000
+STA $1001,X
+INC $1000
+
+JMP main
+
+
+READ_LINE_PRE_CHECK:
+;at this point we know we are on a fresh 'line', 
+LDY #$00
+LDA ($00),Y
+
+CMP #$20 ; space case
+BEQ SKIP_BYTE
+
+CMP #$0A ; skip newline
+BEQ SKIP_BYTE
+
+CMP #3B ; semi colon
+BEQ SKIP_COMMENT
+
+RTS
+
+SKIP_BYTE:
+JSR INCREMENT_SOURCE_PTR
+JMP READ_LINE_PRE_CHECK
+
+SKIP_COMMENT:
+JSR INCREMENT_SOURCE_PTR
+LDY #$00
+LDA ($00),Y
+CMP #0A
+BEQ READ_LINE_PRE_CHECK
+JMP SKIP_COMMENT
+
+
+INCREMENT_SOURCE_PTR:
+LDA $0000
+CLC
+ADC #$01
+STA $0000
+LDA $0001
+ADC #$00
+STA $0001
+RTS
+
+
+
+PARSE_OPCODE_ENTRY_LABEL_TOKEN:
+; at this point we should have something in the opcode/label buffer
+; check if it is an opcode first
+
+LDX $0008; load x with buffer pointer
+
+LDA $1000,X
+
+;first character of token in A
+; now we can compare to opcode list
+
+LDX $0006 ; load opcode offset
+CMP $7000,X
+
+; if its equal, jump to next opcode character
+BEQ CHECK_OPCODE_2
+
+JMP SET_NEXT_OPCODE
+
+
+
+CHECK_OPCODE_2:
+INC $0008
+INC $0006
+
+LDX $0008; load x with buffer pointer
+
+LDA $1000,X
+
+LDX $0006
+CMP $7000,X
+
+BEQ CHECK_OPCODE_3
+JMP SET_NEXT_OPCODE
+
+
+CHECK_OPCODE_3:
+INC $0008
+INC $0006
+
+LDX $0008; load x with buffer pointer
+
+LDA $1000,X
+
+LDX $0006
+CMP $7000,X
+
+BEQ FINALIZE_OPCODE
+JMP SET_NEXT_OPCODE
+
+
+FINALIZE_OPCODE:
+;we could have an opcode here, but lets ensure
+;check buffer length equal to 3
+LDA $1000
+CMP #$03
+BEQ OPCODE_FOUND
+
+JMP CHECK_LABEL
+
+
+SET_NEXT_OPCODE:
+;we may run out of opcodes here, in that case check if its a label, else error
+INC $0007
+LDA $0006
+CLC
+ADC #$03 ; *****BUG**** this should be opcode index * 3
+STA $0006
+LDA #$01
+STA $0008
+JMP PARSE_OPCODE_ENTRY_LABEL_TOKEN
+
+
+;if gone through all op codes, check if label, if not label error
+
+;if label jump back to main
+
+OPCODE_FOUND:
+; analyze the opcode index to see which opcode we have
+; if the opcode expects no operands, we are done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
