@@ -19,8 +19,55 @@ OPCODE_IDX: .byte $00
 
 TOKEN_BUFFER_PTR: .byte $01
 
-other scratch space
+OPCODE_START_IDX: .byte $00
+
+;other scratch space
 .org $1000
+
+; temp memory
+.org $1500
+
+; opcode directory
+.org $2000
+
+; 0 - Implied
+; 1 - Immediate
+; 2 - Zero Page
+; 3 - Zero Page, X
+; 4 - Zero Page, Y
+; 5 - Absolute
+; 6 - Absolute, X
+; 7 - Absolute, Y
+; 8 - Indrect, X
+; 9 - Indirect, Y
+; 10 - Accumulator
+; 11 - Relative
+; 12 - Absolute Indirect
+
+
+; 13 * 56 = 728
+; $2000 - $21FF~ , opcode directory
+; $02 illegal placeholder
+
+;opcode index 0
+
+ADC:
+.byte $02 ; implied
+.byte $69 ; immediate
+.byte $65 ; zero page
+.byte $75 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $6D ; absolute
+.byte $7D ; absolute, X
+.byte $79 ; absolute, Y
+.byte $61 ; indirect, x
+.byte $71 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 1
+AND:
 
 ;opcode strings 7000 - 7100
 .org $7000   ; 'L'          'D'       'A'
@@ -33,26 +80,14 @@ OPCODES_STR: .byte $4C .byte $44 .byte $41  ; ... etc
 ;part 2 program section
 
 .org $8000
-; read character by character fom source_ptr
-; if first 3 characters is not an opcode, then keep reading charactes, if we see a ':' we expect it to be a label
-; create a buffer space of characters we have read so far since it might be a label
-; if second character or later is ':' it is a label, must be followed by whitespace
 
 main:
 
-; read opCode or label
-;keep reading until we encounter a space character
+JSR RESET_OPCODE_IDX
 
-;read line pseudocode
-;if token buffer has length 0:
-	;skip any spaces
-	;skip newline characters
-	;if a semicolon is encountered, skip until the next newline character
-	; (skip means advance source pointer and jump back to main)
+JSR SKIP_SPACES_COMMENTS
 
-LDA $1000
-CMP #$00
-JSR READ_LINE_PRE_CHECK
+PARSE_TOKEN:
 
 LDY #$00
 LDA ($00),Y
@@ -63,15 +98,10 @@ BEQ PARSE_OPCODE_ENTRY_LABEL_TOKEN
 CMP #$0A
 BEQ PARSE_OPCODE_ENTRY_LABEL_TOKEN
 
-;else store current characters into buffer
-;push character to stack
 PHA
 
-; increment source pointer
-; this can be a subroutine
 JSR INCREMENT_SOURCE_PTR
 
-;pull character back into A and store it to a buffer
 PLA
 
 ; read string buffer length
@@ -79,10 +109,10 @@ LDX $1000
 STA $1001,X
 INC $1000
 
-JMP main
+JMP PARSE_TOKEN
 
 
-READ_LINE_PRE_CHECK:
+SKIP_SPACES_COMMENTS:
 ;at this point we know we are on a fresh 'line', 
 LDY #$00
 LDA ($00),Y
@@ -93,21 +123,22 @@ BEQ SKIP_BYTE
 CMP #$0A ; skip newline
 BEQ SKIP_BYTE
 
-CMP #3B ; semi colon
+CMP #3$B ; semi colon
 BEQ SKIP_COMMENT
 
 RTS
 
+
 SKIP_BYTE:
 JSR INCREMENT_SOURCE_PTR
-JMP READ_LINE_PRE_CHECK
+JMP SKIP_SPACES_COMMENTS
 
 SKIP_COMMENT:
 JSR INCREMENT_SOURCE_PTR
 LDY #$00
 LDA ($00),Y
 CMP #0A
-BEQ READ_LINE_PRE_CHECK
+BEQ SKIP_SPACES_COMMENTS
 JMP SKIP_COMMENT
 
 
@@ -122,17 +153,22 @@ STA $0001
 RTS
 
 
-
 PARSE_OPCODE_ENTRY_LABEL_TOKEN:
-; at this point we should have something in the opcode/label buffer
-; check if it is an opcode first
+
+; check if label
+LDX $1000 ; token string length
+LDA $1000,X
+
+CMP #$3A
+BEQ CREATE_LABEL
+
+LDA $1000
+CMP #$03
+BNE ERROR_OP_CODE_NOT_FOUND
 
 LDX $0008; load x with buffer pointer
 
 LDA $1000,X
-
-;first character of token in A
-; now we can compare to opcode list
 
 LDX $0006 ; load opcode offset
 CMP $7000,X
@@ -175,34 +211,61 @@ JMP SET_NEXT_OPCODE
 
 
 FINALIZE_OPCODE:
-;we could have an opcode here, but lets ensure
-;check buffer length equal to 3
-LDA $1000
-CMP #$03
-BEQ OPCODE_FOUND
-
-JMP CHECK_LABEL
+; at this point we know we have an opcode, but we have to check for operands
+; if opcode is of length 1, done, write machine code to output memory
+; if opcode is of different type, skip spaces and read in next token
+; check supported addressing mode using bit mask
+; for now only support hexadecimal
+; if the opcode has operands, we output a different hexOpCode depending on the addressing mode
+; how to store the opcode variants?
+; there are up to 13 variants
+; dedicate memory for each opcode index, 13 bytes long, use $02 to represent unsupported address mode
+; each 13 bytes represents the opcode of a specific addressing mode, the index 0-12 determines the addressing mode.
+; if the implied mode is not $02, it is a 1-length opcode, we just grab the code and jmp to main
+; else we need to continue parsing the operand section to figure out the addressing mode and subsequent output operand
 
 
 SET_NEXT_OPCODE:
-;we may run out of opcodes here, in that case check if its a label, else error
-INC $0007
-LDA $0006
-CLC
-ADC #$03 ; *****BUG**** this should be opcode index * 3
+;0 - 55 legal
+INC $0007 ; op code index
+LDA $0007
+CMP #$56
+BEQ ERROR_OP_CODE_NOT_FOUND
+
+LDA $0009;
+ADC #$03;
+STA $0009
 STA $0006
 LDA #$01
 STA $0008
 JMP PARSE_OPCODE_ENTRY_LABEL_TOKEN
 
 
-;if gone through all op codes, check if label, if not label error
+CREATE_LABEL:
+; this is the case of a Label creation
+; create the label entry record
+; jump back to main, output pointer not changed
 
-;if label jump back to main
 
-OPCODE_FOUND:
-; analyze the opcode index to see which opcode we have
-; if the opcode expects no operands, we are done
+; the other case of label usage is a label reference in the operand
+DECODE_BRANCH_LABEL:
+
+
+DECODE_OPERAND_LABEL:
+
+RESET_OPCODE_IDX:
+LDA #$00
+STA $0007
+STA $0009
+STA $0006
+RTS
+
+ERROR_OP_CODE_NOT_FOUND:
+LDA #$05 ; use #$05 to represent op code not found error
+STA $1500
+BRK
+
+
 
 
 

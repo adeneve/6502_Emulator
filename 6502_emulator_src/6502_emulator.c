@@ -131,7 +131,7 @@ bool mode_IND_Y(CPU_6502* cpu, uint16_t* target_address) {
 }
 
 bool mode_REL(CPU_6502* cpu, uint16_t* target_address) {
-
+    return false;
 }
 
 // ============================================================================
