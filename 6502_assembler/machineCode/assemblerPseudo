@@ -90,12 +90,12 @@ AND:
 
 ; $5000 output machine code program
 
-;opcode strings 7000 - 7100
+;opcode strings 7000 - 7099
 .org $7000   ; 'L'          'D'       'A'
 OPCODES_STR: .byte $4C .byte $44 .byte $41  ; ... etc
 
-;dynamic label space 7111 - 7999
-.org $7111
+;dynamic label space 7100 - 7999
+.org $7100
 
 
 ;part 2 program section
@@ -190,55 +190,57 @@ PARSE_OPCODE_ENTRY_LABEL_TOKEN:
 LDX $1000 ; token string length
 LDA $1000,X
 
-CMP #$3A
+CMP #$3A ; ends with a colon
 BEQ CREATE_LABEL
 
 LDA $1000
 CMP #$03
 BNE ERROR_OP_CODE_NOT_FOUND
 
-LDX $0008; load x with buffer pointer
+LDY #$00
+MATCH_LOOP:
 
-LDA $1000,X
+LDX $0006;
+LDA $7000,X
 
-LDX $0006 ; load opcode offset
-CMP $7000,X
+LDX $0008
+CMP $1000,X
+BNE SET_NEXT_OPCODE
 
-; if its equal, jump to next opcode character
-BEQ CHECK_OPCODE_2
-
-JMP SET_NEXT_OPCODE
-
-
-
-CHECK_OPCODE_2:
 INC $0008
 INC $0006
-
-LDX $0008; load x with buffer pointer
-
-LDA $1000,X
-
-LDX $0006
-CMP $7000,X
-
-BEQ CHECK_OPCODE_3
-JMP SET_NEXT_OPCODE
+INY
+CPY #$03
+BNE MATCH_LOOP
+JMP FINALIZE_OPCODE
 
 
-CHECK_OPCODE_3:
-INC $0008
-INC $0006
+SET_NEXT_OPCODE:
+;0 - 55 legal
+INC $0007 ; op code index
+LDA $0007
+CMP #$56
+BEQ ERROR_OP_CODE_NOT_FOUND
 
-LDX $0008; load x with buffer pointer
+LDA $0009;
+CLC
+ADC #$03;
+STA $0009
+STA $0006
+LDA #$01
+STA $0008
 
-LDA $1000,X
+LDA $000A
+CLC
+ADC #$0D
+STA $000A
+LDA $000B
+ADC #$00
+STA $000B
+CLC
 
-LDX $0006
-CMP $7000,X
-
-BEQ FINALIZE_OPCODE
-JMP SET_NEXT_OPCODE
+LDY #$00
+JMP MATCH_LOOP
 
 
 FINALIZE_OPCODE:
@@ -246,7 +248,7 @@ FINALIZE_OPCODE:
 LDY #$00
 LDA ($0A),Y
 
-CMP #$02
+CMP #$02 ; implied mode?
 
 BEQ FINALIZE_OPCODE_CONTINUED
 
@@ -274,11 +276,6 @@ STA $1100
 
 JSR PARSE_OPERAND
 
-; operand characters should now be in memory location $1100
-; for now we will only handle hexadecimal cases
-; for now, only support immediate, accumulator, absolute, absolute X, indirect Y, and relative
-; remember we have the opcode dictionary to output the base machine code, then we must output the operand machine code(s)
-
 LDA $1101
 
 CMP #$23 ; #
@@ -294,8 +291,37 @@ CMP #$28 ; (
 BEQ HANDLE_INDIRECT
 
 ;handle branch
+;only branches have relative mode not $02
 
 JMP MAIN
+
+
+PARSE_OPERAND:
+
+LDY #$00
+LDA ($00),Y
+
+CMP #$20 ; we could have a space '$20' or newline
+BEQ RETURN
+
+CMP #$0A
+BEQ RETURN
+
+PHA
+
+JSR INCREMENT_SOURCE_PTR
+
+PLA
+
+; read string buffer length
+LDX $1100
+STA $1101,X
+INC $1100
+
+JMP PARSE_OPERAND
+
+RETURN:
+RTS
 
 
 HANDLE_IMMEDIATE:
@@ -336,91 +362,176 @@ JSR INCREMENT_TGT_PTR
 JMP MAIN
 
 
+HANDLE_ABSOLUTE:
 
-CONVERT_HEX:
-; 0 - 9, is $30 - $39 in hex utf8
-; check if value is greater than $39, if so we subtract $37 not $30
-CMP #$40
-BCS CONVERT_HEX_LETTER
+LDA #$06
+CMP $1100
+BCS HANDLE_ABSOLUTE_XY
 
-SEC
-SBC #$30
-RTS
+LDY #$05
+LDA ($0A),Y
 
-CONVERT_HEX_LETTER:
-SEC
-SBC #$37
-RTS
+CMP #$02
+BEQ ERROR_ADDRESS_MODE_NOT_SUPPORTED
 
-FORM_HIGH_NIBBLE:
-ASL A
-ASL A
-ASL A
-ASL A
-RTS
-
-
-
-PARSE_OPERAND:
+HANDLE_ABSOLUTE_CONTINUED:
 
 LDY #$00
-LDA ($00),Y
+STA ($02),Y
 
-CMP #$20 ; we could have a space '$20' or newline
-BEQ RETURN
+JSR INCREMENT_TGT_PTR
 
-CMP #$0A
-BEQ RETURN
+LDA $1101
+CMP #$24
+BNE ERROR_EXPECTED_DOLLAR_SIGN
 
-PHA
+LDA $1102 ; hex upper nibble, utf8
 
-JSR INCREMENT_SOURCE_PTR
+JSR CONVERT_HEX
 
-PLA
+JSR FORM_HIGH_NIBBLE
 
-; read string buffer length
+STA $1200;
+
+LDA $1103 
+JSR CONVERT_HEX
+ORA $1200;
+
+STA $1201; high byte
+
+LDA $1104
+JSR CONVERT_HEX
+JSR FORM_HIGH_NIBBLE
+
+STA $1200
+
+LDA $1105
+JSR CONVERT_HEX
+ORA $1200;
+
+LDY #$00
+STA ($02),Y
+
+JSR INCREMENT_TGT_PTR
+
+LDA $1201
+
+LDY #$00
+STA ($02),Y
+
+JSR INCREMENT_TGT_PTR
+
+JMP MAIN
+
+
+HANDLE_ABSOLUTE_XY:
 LDX $1100
-STA $1101,X
-INC $1100
+LDA $1100,X
+CMP #$58 ; X
+BEQ HANDLE_ABSOLUTE_X
 
-JMP PARSE_OPERAND
+LDX $1100
+LDA $1100,X
+CMP #$59 ; Y
+BEQ HANDLE_ABSOLUTE_Y
 
-RETURN:
-RTS
+HANDLE_ABSOLUTE_X:
+LDY #$06
+LDA ($0A),Y
+
+CMP #$02
+BEQ ERROR_ADDRESS_MODE_NOT_SUPPORTED
+
+JMP HANDLE_ABSOLUTE_CONTINUED
+
+HANDLE_ABSOLUTE_Y:
+LDY #$07
+LDA ($0A),Y
+
+CMP #$02
+BEQ ERROR_ADDRESS_MODE_NOT_SUPPORTED
+
+JMP HANDLE_ABSOLUTE_CONTINUED
 
 
+HANDLE_ACCUMULATOR:
+; first check, is the accumulator opcode $0A not $02
 
-SET_NEXT_OPCODE:
-;0 - 55 legal
-INC $0007 ; op code index
-LDA $0007
-CMP #$56
-BEQ ERROR_OP_CODE_NOT_FOUND
+LDY #$0A
+LDA ($0A),Y
 
-LDA $0009;
-CLC
-ADC #$03;
-STA $0009
-STA $0006
-LDA #$01
-STA $0008
+CMP #$02
+BEQ ERROR_ADDRESS_MODE_NOT_SUPPORTED
 
-LDA $000A
-CLC
-ADC #$0D
-STA $000A
-LDA $000B
-ADC #$00
-STA $000B
-CLC
+LDY #$00
+STA ($02),Y
 
-JMP PARSE_OPCODE_ENTRY_LABEL_TOKEN
+JSR INCREMENT_TGT_PTR
+
+JMP MAIN
+
+HANDLE_INDIRECT:
+; for now, just support indirect Y
+
+LDY #$09
+LDA ($0A),Y
+
+CMP #$02
+BEQ ERROR_ADDRESS_MODE_NOT_SUPPORTED
+
+LDY #$00
+STA ($02),Y
+
+JSR INCREMENT_TGT_PTR
+
+LDA $1101
+CMP #$24
+BNE ERROR_EXPECTED_DOLLAR_SIGN
+
+LDA $1102
+CMP #$24
+BNE ERROR_EXPECTED_DOLLAR_SIGN
+
+; its possible we have a label here too
+; so if its not a dollar sign check all characters up to ')'
+
+LDA $1103 ; hex upper nibble, utf8
+
+JSR CONVERT_HEX
+
+JSR FORM_HIGH_NIBBLE
+
+STA $1200;
+
+LDA $1104 
+JSR CONVERT_HEX
+ORA $1200;
+
+LDY #$00
+STA ($02),Y
+
+JSR INCREMENT_TGT_PTR
+
+
+JMP MAIN
 
 
 CREATE_LABEL:
 ; this is the case of a Label creation
 ; create the label entry record
 ; jump back to main, output pointer not changed
+; label storage starts at $7100, initally zeroed out
+; we need to create a list strucutre
+; first byte will be the length of the list, (should start at zero)
+; next byte will be the length of the label string
+; next x bytes will be the label string characters
+; finally last 2 bytes will be the memory location
+; this will simply be a copy of the target pointer
+
+;first, read length of the list into memory,
+;using the length, traverse to the end of the list in a loop
+; once we have the pointer to the end of the list, we can dump the data
+; then increment the label list length
 
 
 ; the other case of label usage is a label reference in the operand
@@ -455,7 +566,27 @@ STA $1500
 BRK
 
 
+CONVERT_HEX:
+; 0 - 9, is $30 - $39 in hex utf8
+; check if value is greater than $39, if so we subtract $37 not $30
+CMP #$40
+BCS CONVERT_HEX_LETTER
 
+SEC
+SBC #$30
+RTS
+
+CONVERT_HEX_LETTER:
+SEC
+SBC #$37
+RTS
+
+FORM_HIGH_NIBBLE:
+ASL A
+ASL A
+ASL A
+ASL A
+RTS
 
 
 
