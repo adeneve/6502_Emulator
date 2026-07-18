@@ -6,7 +6,7 @@
 ; remember, 6502 is little endian
 
 .org $0000
-SOURCE_PTR_LOW: .byte $00
+SOURCE_PTR_LOW: .byte $00 
 SOURCE_PTR_HIGH: .byte $40
 
 TGT_PTR_LOW: .byte $00
@@ -23,6 +23,9 @@ OPCODE_START_IDX: .byte $00
 
 OPCODE_DIRECTORY_IDX_LOW: .byte $00
 OPCODE_DIRECTORY_IDX_HIGH: .byte $20
+
+LABEL_LIST_END_IDX_LOW: .byte $01
+LABEL_LIST_END_IDX_HIGH: .byte $71
 
 ; source token buffer $1000 opcode, $1100 operand
 .org $1000
@@ -533,8 +536,26 @@ CREATE_LABEL:
 ; once we have the pointer to the end of the list, we can dump the data
 ; then increment the label list length
 
+; read length
+
+LDA $1000 ; label length
+; need to subtract 1 because of the colon
+SEC
+SBC #$01
+
+; $0C holds the end of the label list
+LDY #$0C
+STA ($00),Y
+
+; increment label list pointer
+
+
+
 
 ; the other case of label usage is a label reference in the operand
+; its possible we don't know how to decode the label until the second pass
+; in that case we put a placeholder
+; if label still doesn't exist on the second pass, set an error code
 DECODE_BRANCH_LABEL:
 
 
