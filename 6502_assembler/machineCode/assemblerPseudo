@@ -187,6 +187,16 @@ ADC #$00
 STA $0003
 RTS
 
+INCREMENT_LABEL_PTR:
+LDA $000C
+CLC
+ADC #$01
+STA $000C
+LDA $000D
+ADC #$00
+STA $000D
+RTS
+
 PARSE_OPCODE_ENTRY_LABEL_TOKEN:
 
 ; check if label
@@ -538,6 +548,10 @@ CREATE_LABEL:
 
 ; read length
 
+; increment list length by one
+
+INC $7000
+
 LDA $1000 ; label length
 ; need to subtract 1 because of the colon
 SEC
@@ -548,7 +562,31 @@ LDY #$0C
 STA ($00),Y
 
 ; increment label list pointer
+JSR INCREMENT_LABEL_PTR
 
+LDA $1000
+SEC
+SBC #$01
+STA $1600
+
+LDA #$01
+STA $1601
+LDA #$10
+STA $1602
+LDA $1001
+
+LDY #$0C
+LDX #$00
+
+LOOP:
+STA ($00),Y
+JSR INCREMENT_LABEL_PTR
+INX
+CMX $1600
+BNE LOOP
+
+STA 
+LDY 
 
 
 
