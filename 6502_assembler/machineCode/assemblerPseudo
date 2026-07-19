@@ -303,8 +303,15 @@ BEQ HANDLE_ACCUMULATOR
 CMP #$28 ; (
 BEQ HANDLE_INDIRECT
 
-;handle branch
+;handle label Operand
 ;only branches have relative mode not $02
+; for the branch case, first check the last two characters for ',X', for an indexed syntax
+; if the last two characters are ',X', us
+; if we have a branch base opCode, call handleBranch
+; else convert the buffer to an absolute address and call HANDLE_ABSOLUTE
+; if we can't translate the label on first pass, leave a placeholder operand
+; else on second pass error if we still can't find
+
 
 JMP MAIN
 
@@ -377,7 +384,7 @@ JMP MAIN
 
 HANDLE_ABSOLUTE:
 
-LDA #$06
+LDA #$07
 CMP $1100
 BCS HANDLE_ABSOLUTE_XY
 
@@ -530,27 +537,10 @@ JMP MAIN
 
 
 CREATE_LABEL:
-; this is the case of a Label creation
-; create the label entry record
-; jump back to main, output pointer not changed
-; label storage starts at $7100, initally zeroed out
-; we need to create a list strucutre
-; first byte will be the length of the list, (should start at zero)
-; next byte will be the length of the label string
-; next x bytes will be the label string characters
-; finally last 2 bytes will be the memory location
-; this will simply be a copy of the target pointer
-
-;first, read length of the list into memory,
-;using the length, traverse to the end of the list in a loop
-; once we have the pointer to the end of the list, we can dump the data
-; then increment the label list length
-
-; read length
 
 ; increment list length by one
-
 INC $7000
+
 
 LDA $1000 ; label length
 ; need to subtract 1 because of the colon
@@ -559,35 +549,37 @@ SBC #$01
 
 ; $0C holds the end of the label list
 LDY #$0C
+
+; 1 - store label length
 STA ($00),Y
 
 ; increment label list pointer
 JSR INCREMENT_LABEL_PTR
 
-LDA $1000
-SEC
-SBC #$01
-STA $1600
-
-LDA #$01
-STA $1601
-LDA #$10
-STA $1602
-LDA $1001
-
+; 2 - store label characters
 LDY #$0C
-LDX #$00
 
+LDX #$01
 LOOP:
+LDA $1000,X
 STA ($00),Y
 JSR INCREMENT_LABEL_PTR
 INX
-CMX $1600
+CMX $1000
 BNE LOOP
 
-STA 
-LDY 
+; 3 - store the target pointer
 
+LDY #$0C
+
+LDA #$02
+STA ($00),Y
+JSR INCREMENT_LABEL_PTR
+LDA #$03 
+STA ($00),Y
+JSR INCREMENT_LABEL_PTR
+
+JMP MAIN
 
 
 ; the other case of label usage is a label reference in the operand
