@@ -27,6 +27,12 @@ OPCODE_DIRECTORY_IDX_HIGH: .byte $20
 LABEL_LIST_END_IDX_LOW: .byte $01
 LABEL_LIST_END_IDX_HIGH: .byte $71
 
+
+LABEL_LIST_START_IDX_LOW: .byte $01
+LABEL_LIST_START_IDX_HIGH: .byte $71
+
+SECOND_PASS: .byte $00
+
 ; source token buffer $1000 opcode, $1100 operand
 .org $1000
 
@@ -197,6 +203,16 @@ ADC #$00
 STA $000D
 RTS
 
+INCREMENT_LABEL_START_PTR:
+LDA $000E
+CLC
+ADC #$01
+STA $000E
+LDA $000F
+ADC #$00
+STA $000F
+RTS
+
 PARSE_OPCODE_ENTRY_LABEL_TOKEN:
 
 ; check if label
@@ -303,14 +319,8 @@ BEQ HANDLE_ACCUMULATOR
 CMP #$28 ; (
 BEQ HANDLE_INDIRECT
 
-;handle label Operand
-;only branches have relative mode not $02
-; for the branch case, first check the last two characters for ',X', for an indexed syntax
-; if the last two characters are ',X', us
-; if we have a branch base opCode, call handleBranch
-; else convert the buffer to an absolute address and call HANDLE_ABSOLUTE
-; if we can't translate the label on first pass, leave a placeholder operand
-; else on second pass error if we still can't find
+
+JSR HANDLE_LABEL
 
 
 JMP MAIN
@@ -536,6 +546,145 @@ JSR INCREMENT_TGT_PTR
 JMP MAIN
 
 
+HANDLE_LABEL_OPERAND:
+;handle label Operand
+; we either have a branch relative, or absolute address
+; if we are on first pass and can't find the label, put a placeholder, else error
+
+;clear scratch space
+LDA #$00
+STA $1700
+STA $1701
+STA $1702
+STA $1703
+STA $1704
+STA $1705
+STA $1706
+
+;reset label storage pointer
+LDA #$01
+STA $000E
+LDA #$71
+STA $000F
+
+; handle ',X' case later
+
+JSR FIND_LABEL
+
+; if a label was found, $1704 should be set to 1, $1705, $1706 hold the target address
+
+LDA $1704
+CMP #$01
+BEQ HANDLE_LABEL_OPERAND_CONTINUED
+
+LDA $0010
+CMP #$00
+BEQ SET_PLACEHOLDERS
+
+; error label not found
+
+
+
+FIND_LABEL:
+
+; label operand currently at $1100
+; label storage at $7100
+; use $1700 for scratch space
+; $1700 label storage, label length
+
+
+LDA $7100
+CMP #$00
+BEQ RETURN
+
+LDX #$00
+FIND_LABEL_LOOP:
+
+INX
+
+; store label length
+LDY #$00
+LDA ($0E),Y
+STA $1700
+
+LDA $1100
+
+CMP $1700
+BEQ CHECK_LABEL_CHARACTERS
+
+CMX $7100
+BNE SET_NEXT_LABEL
+
+; if we hit here we have gone through all labels
+; label not found
+
+LDA #$00
+STA $1704
+
+RETURN
+
+
+
+SET_NEXT_LABEL:
+
+LDY #$0
+CHECK_NEXT_LABEL_LOOP:
+
+INY
+
+JSR INCREMENT_LABEL_START_PTR
+
+CPY $1700
+BNE CHECK_NEXT_LABEL_LOOP
+
+JSR INCREMENT_LABEL_START_PTR
+JSR INCREMENT_LABEL_START_PTR
+JSR INCREMENT_LABEL_START_PTR
+
+JMP FIND_LABEL_LOOP
+
+
+CHECK_LABEL_CHARACTERS:
+; x, a, b, c, t0, t1, y
+; ^,                , *
+
+LDY #$00
+
+MATCH_LABEL_LOOP:
+
+CMY $1700
+BEQ LABEL_FOUND
+
+INY
+
+LDA $1100,Y
+CMP ($0E),Y
+BEQ MATCH_LABEL_LOOP
+
+JMP SET_NEXT_LABEL
+
+
+LABEL_FOUND:
+; copy the target memory location to a scratch space
+; then return back to 'handle label'
+
+LDA #$01
+STA $1704
+
+LDY $1700
+INY
+LDA ($0E),Y
+STA $1705
+INY
+LDA ($0E),Y
+STA $1706
+
+RETURN
+
+
+
+
+
 CREATE_LABEL:
 
 ; increment list length by one
@@ -570,13 +719,11 @@ BNE LOOP
 
 ; 3 - store the target pointer
 
-LDY #$0C
-
-LDA #$02
-STA ($00),Y
+LDA $0002
+STA ($0C),Y
 JSR INCREMENT_LABEL_PTR
-LDA #$03 
-STA ($00),Y
+LDA $0003
+STA ($0C),Y
 JSR INCREMENT_LABEL_PTR
 
 JMP MAIN
