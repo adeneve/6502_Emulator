@@ -320,7 +320,7 @@ CMP #$28 ; (
 BEQ HANDLE_INDIRECT
 
 
-JSR HANDLE_LABEL
+JSR HANDLE_LABEL_OPERAND
 
 
 JMP MAIN
@@ -546,6 +546,52 @@ JSR INCREMENT_TGT_PTR
 JMP MAIN
 
 
+
+HANDLE_ABSOLUTE_LABEL:
+
+LDY #$05
+LDA ($0A),Y
+
+LDY #$00
+STA ($02),Y
+
+JSR INCREMENT_TGT_PTR
+
+LDA $1705
+STA ($02),Y
+
+JSR INCREMENT_TGT_PTR
+
+LDA $1706
+STA ($02),Y
+
+JMP MAIN
+
+
+
+HANDLE_BRANCH_RELATIVE:
+
+LDY #$0B
+LDA ($0A),Y
+
+LDY #$00
+STA ($02),Y
+
+JSR INCREMENT_TGT_PTR
+
+; get the low byte of the label
+; find 
+; 
+
+; target $1705 - source $0002 + 2
+
+
+
+
+
+
+
+
 HANDLE_LABEL_OPERAND:
 ;handle label Operand
 ; we either have a branch relative, or absolute address
@@ -582,6 +628,22 @@ CMP #$00
 BEQ SET_PLACEHOLDERS
 
 ; error label not found
+;set error code, go into break state
+
+
+HANDLE_LABEL_OPERAND_CONTINUED:
+
+; check to see if we are dealing with a branch operation
+; branch operation will have the relative mode not set to #$02
+; $0B
+
+LDY #$0B
+LDA ($0A),Y
+
+CMP #$02
+BEQ HANDLE_ABSOLUTE_LABEL
+
+JMP HANDLE_BRANCH_RELATIVE
 
 
 
