@@ -33,6 +33,11 @@ LABEL_LIST_START_IDX_HIGH: .byte $71
 
 SECOND_PASS: .byte $00
 
+DIRECTIVE_IDX: .byte $00
+
+DIRECTIVE_PTR_LOW: .byte $01
+DIRECTIVE_PTR_HIGH: .byte $65
+
 ; source token buffer $1000 opcode, $1100 operand
 .org $1000
 
@@ -99,6 +104,10 @@ AND:
 
 ; $5000 output machine code program
 
+; directive strings 6500-6999, first byte is total directives, then length of directive followed by characters.
+.org $6500
+DIRECTIVES_STR: .byte $01 .byte $03 .byte $45 .byte $4E .byte $44
+
 ;opcode strings 7000 - 7099
 .org $7000   ; 'L'          'D'       'A'
 OPCODES_STR: .byte $4C .byte $44 .byte $41  ; ... etc
@@ -127,6 +136,9 @@ BEQ PARSE_OPCODE_ENTRY_LABEL_TOKEN
 
 CMP #$0A
 BEQ PARSE_OPCODE_ENTRY_LABEL_TOKEN
+
+CMP #$2E
+BEQ HANDLE_DIRECTIVES
 
 PHA
 
@@ -810,7 +822,7 @@ RETURN
 CREATE_LABEL:
 
 ; increment list length by one
-INC $7000
+INC $7100
 
 
 LDA $1000 ; label length
@@ -819,21 +831,22 @@ SEC
 SBC #$01
 
 ; $0C holds the end of the label list
-LDY #$0C
+LDY #$00
 
 ; 1 - store label length
-STA ($00),Y
+STA ($0C),Y
 
 ; increment label list pointer
 JSR INCREMENT_LABEL_PTR
 
+
 ; 2 - store label characters
-LDY #$0C
 
 LDX #$01
 LOOP:
 LDA $1000,X
-STA ($00),Y
+LDY #$00
+STA ($0C),Y
 JSR INCREMENT_LABEL_PTR
 INX
 CPX $1000
@@ -842,9 +855,11 @@ BNE LOOP
 ; 3 - store the target pointer
 
 LDA $0002
+LDY #$00
 STA ($0C),Y
 JSR INCREMENT_LABEL_PTR
 LDA $0003
+LDY #$00
 STA ($0C),Y
 JSR INCREMENT_LABEL_PTR
 
@@ -908,7 +923,98 @@ ASL A
 ASL A
 RTS
 
+HANDLE_DIRECTIVES:
+; need to continue reading characters until space or newline
 
+JSR INCREMENT_SOURCE_PTR
+
+LDA #$00
+STA $1000
+
+PARSE_DIRECTIVE:
+
+LDY #$00
+LDA ($00),Y
+
+CMP #$20 ; we could have a space '$20' or newline
+BEQ FIND_DIRECTIVE
+
+CMP #$0A
+BEQ FIND_DIRECTIVE
+
+PHA
+
+JSR INCREMENT_SOURCE_PTR
+
+PLA
+
+; read string buffer length
+LDX $1000
+STA $1001,X
+INC $1000
+
+JMP PARSE_DIRECTIVE
+
+
+FIND_DIRECTIVE:
+
+
+
+LDX #$00
+LOOP_DIRECTIVES:
+
+CMP $6500
+BEQ DIRECTIVE_NOT_FOUND
+
+JSR CHECK_NEXT_DIRECTIVE
+
+INX
+JMP LOOP_DIRECTIVES
+
+
+CHECK_NEXT_DIRECTIVE:
+
+; compare characters in $1000, to characters in $6500
+; $12, $13 hold the directive pointer
+; so we just need an offset
+
+
+LDA $1000
+
+LDY #$00
+CMP (#12),Y
+BNE RETURN
+
+LDY #$00
+LDX #$00
+
+CHECK_DIRECTIVE:
+; if X equals length, we have found it
+LDX $1501
+LDA $1501
+CMP $1000
+BEQ DIRECTIVE_FOUND
+
+INX
+INY
+
+LDA $1000,X
+CPY ($12),Y
+BEQ CHECK_DIRECTIVE
+
+RETURN
+
+
+
+
+
+
+
+
+
+
+
+.end
 
 
 
