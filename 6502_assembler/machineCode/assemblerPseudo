@@ -106,7 +106,11 @@ AND:
 
 ; directive strings 6500-6999, first byte is total directives, then length of directive followed by characters.
 .org $6500
-DIRECTIVES_STR: .byte $01 .byte $03 .byte $45 .byte $4E .byte $44
+DIRECTIVES_STR: 
+.byte $03 
+.byte $03 .byte $65 .byte $6E .byte $64           ; .end
+.byte $03 .byte $6F .byte $72 .byte $67           ; .org
+.byte $04 .byte $62 .byte $79 .byte $74 .byte $65 ; .byte
 
 ;opcode strings 7000 - 7099
 .org $7000   ; 'L'          'D'       'A'
@@ -1051,6 +1055,12 @@ LDA $0011
 CMP #$00
 BEQ END_DIRECTIVE
 
+CMP #$01
+BEQ ORG_DIRECTIVE
+
+CMP #$02
+BEQ BYTE_DIRECTIVE
+
 JMP MAIN
 
 
@@ -1065,6 +1075,47 @@ BEQ TERMINATE
 CMP #$00
 BEQ SECOND_PASS
 
+BYTE_DIRECTIVE:
+; parse the next 2 hex values directly into target memory
+JSR SKIP_SPACES_COMMENTS
+
+LDY #$00
+LDA ($00),Y
+
+CMP #$24
+BNE ERROR_EXPECTED_DOLLAR_SIGN
+
+JSR INCREMENT_SOURCE_PTR
+
+LDY #$00
+LDA ($00),Y
+
+JSR CONVERT_HEX
+
+JSR FORM_HIGH_NIBBLE
+
+STA $1200;
+
+JSR INCREMENT_SOURCE_PTR
+
+LDY #$00
+LDA ($00),Y
+
+JSR CONVERT_HEX
+ORA $1200;
+
+LDY #$00
+STA ($02),Y
+
+JSR INCREMENT_TGT_PTR
+
+JMP MAIN
+
+
+
+ORG_DIRECTIVE:
+; parse next 4 hex values, and point target output pointer to that value
+
 
 SECOND_PASS:
 ; reset all pointers except label pointer
@@ -1072,6 +1123,42 @@ LDA #$00
 STA $0000
 LDA #$40
 STA $0001
+
+LDA #$00
+STA $0002
+LDA #$50
+STA $0003
+
+LDA #$00
+STA $0004
+LDA #$70
+STA $0005
+LDA #$00
+STA $0006
+STA $0007
+
+LDA #$01
+STA $0008
+
+LDA #$00
+STA $0009
+
+STA $000A
+LDA #$20
+STA $000B
+
+LDA #$01
+STA $000E
+LDA #$71
+STA $000F
+
+LDA #$00
+STA $0011
+
+LDA #$01
+STA $0012
+LDA #$65
+STA $0013
 
 
 INC $0010
