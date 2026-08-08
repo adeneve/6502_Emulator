@@ -102,6 +102,879 @@ AND:
 .byte $02 ; relative
 .byte $02 ; absolute indirect
 
+;opcode index 2
+ASL:
+.byte $02 ; implied
+.byte $02 ; immediate
+.byte $06 ; zero page
+.byte $16 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $0E ; absolute
+.byte $1E ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $0A ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 3
+BIT:
+.byte $02 ; implied
+.byte $02 ; immediate
+.byte $06 ; zero page
+.byte $16 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $0E ; absolute
+.byte $1E ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $0A ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+; Branch Instructions
+;opcode index 4
+BPL:
+.byte $02 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $10 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 5
+BMI:
+.byte $02 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $30 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 6
+BMI:
+.byte $02 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $30 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 7
+BVC:
+.byte $02 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $50 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 8
+BVS:
+.byte $02 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $70 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 9
+BCC:
+.byte $02 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $90 ; relative
+.byte $02 ; absolute indirect
+
+
+;opcode index 10
+BCS:
+.byte $02 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $B0 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 11
+BNE:
+.byte $02 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $D0 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 12
+BEQ:
+.byte $02 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $F0 ; relative
+.byte $02 ; absolute indirect
+
+; end branch instructions
+
+;opcode index 13
+BRK:
+.byte $00 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 14
+CMP:
+.byte $02 ; implied
+.byte $C9 ; immediate
+.byte $C5 ; zero page
+.byte $D5 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $CD ; absolute
+.byte $DD ; absolute, X
+.byte $D9 ; absolute, Y
+.byte $C1 ; indirect, x
+.byte $D1 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 15
+CPX:
+.byte $02 ; implied
+.byte $E0 ; immediate
+.byte $E4 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $EC ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 16
+CPY:
+.byte $02 ; implied
+.byte $C0 ; immediate
+.byte $C4 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $CC ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 17
+DEC:
+.byte $02 ; implied
+.byte $02 ; immediate
+.byte $C6 ; zero page
+.byte $D6 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $CE ; absolute
+.byte $DE ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 18
+EOR:
+.byte $02 ; implied
+.byte $49 ; immediate
+.byte $45 ; zero page
+.byte $55 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $4D ; absolute
+.byte $5D ; absolute, X
+.byte $59 ; absolute, Y
+.byte $41 ; indirect, x
+.byte $51 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 19
+CLC:
+.byte $18 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 20
+SEC:
+.byte $38 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 21
+CLI:
+.byte $58 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 22
+SEI:
+.byte $78 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 23
+CLV:
+.byte $B8 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 24
+CLD:
+.byte $D8 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 25
+SED:
+.byte $F8 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 26
+INC:
+.byte $02 ; implied
+.byte $02 ; immediate
+.byte $E6 ; zero page
+.byte $F6 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $EE ; absolute
+.byte $FE ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 27
+JMP:
+.byte $02 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $4C ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $6C ; absolute indirect
+
+;opcode index 28
+JSR:
+.byte $02 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $20 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 29
+LDA:
+.byte $02 ; implied
+.byte $A9 ; immediate
+.byte $A5 ; zero page
+.byte $B5 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $AD ; absolute
+.byte $BD ; absolute, X
+.byte $B9 ; absolute, Y
+.byte $A1 ; indirect, x
+.byte $B1 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 30
+LDX:
+.byte $02 ; implied
+.byte $A2 ; immediate
+.byte $A6 ; zero page
+.byte $02 ; zero page, X
+.byte $B6 ; zero page, Y
+.byte $AE ; absolute
+.byte $02 ; absolute, X
+.byte $BE ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 31
+LDY:
+.byte $02 ; implied
+.byte $A0 ; immediate
+.byte $A4 ; zero page
+.byte $B4 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $AC ; absolute
+.byte $BC ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 32
+NOP:
+.byte $EA ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 33
+ORA:
+.byte $02 ; implied
+.byte $09 ; immediate
+.byte $05 ; zero page
+.byte $15 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $0D ; absolute
+.byte $1D ; absolute, X
+.byte $19 ; absolute, Y
+.byte $01 ; indirect, x
+.byte $11 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+; register instructions
+
+;opcode index 34
+TAX:
+.byte $AA ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 35
+TXA:
+.byte $8A ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 36
+DEX:
+.byte $CA ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 37
+INX:
+.byte $E8 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 38
+TAY:
+.byte $A8 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 39
+TYA:
+.byte $98 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 40
+DEY:
+.byte $88 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 41
+INY:
+.byte $C8 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 42
+ROL:
+.byte $02 ; implied
+.byte $02 ; immediate
+.byte $26 ; zero page
+.byte $36 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $2E ; absolute
+.byte $3E ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $2A ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 43
+ROR:
+.byte $02 ; implied
+.byte $02 ; immediate
+.byte $66 ; zero page
+.byte $76 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $6E ; absolute
+.byte $7E ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $6A ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 44
+RTI:
+.byte $40 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 45
+RTS:
+.byte $60 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 46
+SBC:
+.byte $02 ; implied
+.byte $E9 ; immediate
+.byte $E5 ; zero page
+.byte $F5 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $ED ; absolute
+.byte $FD ; absolute, X
+.byte $F9 ; absolute, Y
+.byte $E1 ; indirect, x
+.byte $F1 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 47
+STA:
+.byte $02 ; implied
+.byte $02 ; immediate
+.byte $85 ; zero page
+.byte $95 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $8D ; absolute
+.byte $9D ; absolute, X
+.byte $99 ; absolute, Y
+.byte $81 ; indirect, x
+.byte $91 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+; stack instructions
+
+;opcode index 48
+TXS:
+.byte $9A ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 49
+TSX:
+.byte $BA ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 50
+PHA:
+.byte $48 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 51
+PLA:
+.byte $68 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 52
+PHP:
+.byte $08 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 53
+PLP:
+.byte $28 ; implied
+.byte $02 ; immediate
+.byte $02 ; zero page
+.byte $02 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $02 ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 54
+STX:
+.byte $02 ; implied
+.byte $02 ; immediate
+.byte $86 ; zero page
+.byte $02 ; zero page, X
+.byte $96 ; zero page, Y
+.byte $8E ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 55
+STY:
+.byte $02 ; implied
+.byte $02 ; immediate
+.byte $84 ; zero page
+.byte $94 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $8C ; absolute
+.byte $02 ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+; $4000 source code
 ; $5000 output machine code program
 
 ; directive strings 6500-6999, first byte is total directives, then length of directive followed by characters.
@@ -113,8 +986,64 @@ DIRECTIVES_STR:
 .byte $04 .byte $62 .byte $79 .byte $74 .byte $65 ; .byte
 
 ;opcode strings 7000 - 7099
-.org $7000   ; 'L'          'D'       'A'
-OPCODES_STR: .byte $4C .byte $44 .byte $41  ; ... etc
+.org $7000   ; 
+OPCODES_STR: 
+.byte $41 .byte $44 .byte $43  ; ADC
+.byte $41 .byte $4E .byte $44  ; AND
+.byte $41 .byte $53 .byte $4C  ; ASL
+.byte $42 .byte $49 .byte $54  ; BIT
+.byte $42 .byte $50 .byte $4C  ; BPL
+.byte $42 .byte $4D .byte $49  ; BMI
+.byte $42 .byte $56 .byte $43  ; BVC
+.byte $42 .byte $56 .byte $53  ; BVS
+.byte $42 .byte $43 .byte $43  ; BCC
+.byte $42 .byte $43 .byte $53  ; BCS
+.byte $42 .byte $4E .byte $45  ; BNE
+.byte $42 .byte $45 .byte $51  ; BEQ
+.byte $42 .byte $52 .byte $4B  ; BRK
+.byte $43 .byte $4D .byte $50  ; CMP
+.byte $43 .byte $50 .byte $58  ; CPX
+.byte $43 .byte $50 .byte $59  ; CPY
+.byte $44 .byte $45 .byte $43  ; DEC
+.byte $45 .byte $4F .byte $52  ; EOR
+.byte $43 .byte $4C .byte $43  ; CLC
+.byte $53 .byte $45 .byte $43  ; SEC
+.byte $43 .byte $4C .byte $49  ; CLI
+.byte $53 .byte $45 .byte $49  ; SEI
+.byte $43 .byte $4C .byte $56  ; CLV
+.byte $43 .byte $4C .byte $44  ; CLD
+.byte $53 .byte $45 .byte $44  ; SED
+.byte $49 .byte $4E .byte $43  ; INC
+.byte $4A .byte $4D .byte $50  ; JMP
+.byte $4A .byte $53 .byte $52  ; JSR
+.byte $4C .byte $44 .byte $41  ; LDA
+.byte $4C .byte $44 .byte $58  ; LDX
+.byte $4C .byte $44 .byte $59  ; LDY
+.byte $4C .byte $53 .byte $52  ; LSR
+.byte $4E .byte $4F .byte $50  ; NOP
+.byte $4F .byte $52 .byte $41  ; ORA
+.byte $54 .byte $41 .byte $58  ; TAX
+.byte $54 .byte $58 .byte $41  ; TXA
+.byte $44 .byte $45 .byte $58  ; DEX
+.byte $49 .byte $4E .byte $58  ; INX
+.byte $54 .byte $41 .byte $59  ; TAY
+.byte $54 .byte $59 .byte $41  ; TYA
+.byte $44 .byte $45 .byte $59  ; DEY
+.byte $49 .byte $4E .byte $59  ; INY
+.byte $52 .byte $4F .byte $4C  ; ROL
+.byte $52 .byte $4F .byte $52  ; ROR
+.byte $52 .byte $54 .byte $49  ; RTI
+.byte $52 .byte $54 .byte $53  ; RTS
+.byte $53 .byte $42 .byte $43  ; SBC
+.byte $53 .byte $54 .byte $41  ; STA
+.byte $54 .byte $58 .byte $53  ; TXS
+.byte $54 .byte $53 .byte $58  ; TSX
+.byte $50 .byte $48 .byte $41  ; PHA
+.byte $50 .byte $4C .byte $41  ; PLA
+.byte $50 .byte $48 .byte $50  ; PHP
+.byte $50 .byte $4C .byte $50  ; PLP
+.byte $53 .byte $54 .byte $58  ; STX
+.byte $53 .byte $54 .byte $59  ; STY
 
 ;dynamic label space 7100 - 7999
 .org $7100
