@@ -5,6 +5,10 @@
 ; part 1, set up data section
 ; remember, 6502 is little endian
 
+; $0000 - $00FF 
+; zero page 
+; memory pointers / variables
+
 .org $0000
 SOURCE_PTR_LOW: .byte $00 
 SOURCE_PTR_HIGH: .byte $40
@@ -13,7 +17,7 @@ TGT_PTR_LOW: .byte $00
 TGT_PTR_HIGH: .byte $50
 
 OPCODE_STR_LOW: .byte $00
-OPCODE_STR_HIGH: .byte $70
+OPCODE_STR_HIGH: .byte $0F
 OPCODE_OFFSET: .byte $00
 OPCODE_IDX: .byte $00
 
@@ -22,55 +26,98 @@ TOKEN_BUFFER_PTR: .byte $01
 OPCODE_START_IDX: .byte $00
 
 OPCODE_DIRECTORY_IDX_LOW: .byte $00
-OPCODE_DIRECTORY_IDX_HIGH: .byte $20
+OPCODE_DIRECTORY_IDX_HIGH: .byte $10
 
 LABEL_LIST_END_IDX_LOW: .byte $01
-LABEL_LIST_END_IDX_HIGH: .byte $71
-
+LABEL_LIST_END_IDX_HIGH: .byte $14
 
 LABEL_LIST_START_IDX_LOW: .byte $01
-LABEL_LIST_START_IDX_HIGH: .byte $71
+LABEL_LIST_START_IDX_HIGH: .byte $14
 
 SECOND_PASS: .byte $00
 
 DIRECTIVE_IDX: .byte $00
 
-DIRECTIVE_PTR_LOW: .byte $01
-DIRECTIVE_PTR_HIGH: .byte $65
+DIRECTIVE_PTR_LOW: .byte $00
+DIRECTIVE_PTR_HIGH: .byte $13
 
-; source token buffer $1000 opcode, $1100 operand
-.org $1000
+
+; source token buffer $0100 opcode, $0200 operand
+.org $0100
 
 ; scratch space
-.org $1200
+.org $0300
 
-; temp memory
-.org $1500
+
+;opcode strings $0F00 - $0FFF
+.org $0F00
+
+OPCODES_STR: 
+.byte $41 .byte $44 .byte $43  ; ADC
+.byte $41 .byte $4E .byte $44  ; AND
+.byte $41 .byte $53 .byte $4C  ; ASL
+.byte $42 .byte $49 .byte $54  ; BIT
+.byte $42 .byte $50 .byte $4C  ; BPL
+.byte $42 .byte $4D .byte $49  ; BMI
+.byte $42 .byte $56 .byte $43  ; BVC
+.byte $42 .byte $56 .byte $53  ; BVS
+.byte $42 .byte $43 .byte $43  ; BCC
+.byte $42 .byte $43 .byte $53  ; BCS
+.byte $42 .byte $4E .byte $45  ; BNE
+.byte $42 .byte $45 .byte $51  ; BEQ
+.byte $42 .byte $52 .byte $4B  ; BRK
+.byte $43 .byte $4D .byte $50  ; CMP
+.byte $43 .byte $50 .byte $58  ; CPX
+.byte $43 .byte $50 .byte $59  ; CPY
+.byte $44 .byte $45 .byte $43  ; DEC
+.byte $45 .byte $4F .byte $52  ; EOR
+.byte $43 .byte $4C .byte $43  ; CLC
+.byte $53 .byte $45 .byte $43  ; SEC
+.byte $43 .byte $4C .byte $49  ; CLI
+.byte $53 .byte $45 .byte $49  ; SEI
+.byte $43 .byte $4C .byte $56  ; CLV
+.byte $43 .byte $4C .byte $44  ; CLD
+.byte $53 .byte $45 .byte $44  ; SED
+.byte $49 .byte $4E .byte $43  ; INC
+.byte $4A .byte $4D .byte $50  ; JMP
+.byte $4A .byte $53 .byte $52  ; JSR
+.byte $4C .byte $44 .byte $41  ; LDA
+.byte $4C .byte $44 .byte $58  ; LDX
+.byte $4C .byte $44 .byte $59  ; LDY
+.byte $4C .byte $53 .byte $52  ; LSR
+.byte $4E .byte $4F .byte $50  ; NOP
+.byte $4F .byte $52 .byte $41  ; ORA
+.byte $54 .byte $41 .byte $58  ; TAX
+.byte $54 .byte $58 .byte $41  ; TXA
+.byte $44 .byte $45 .byte $58  ; DEX
+.byte $49 .byte $4E .byte $58  ; INX
+.byte $54 .byte $41 .byte $59  ; TAY
+.byte $54 .byte $59 .byte $41  ; TYA
+.byte $44 .byte $45 .byte $59  ; DEY
+.byte $49 .byte $4E .byte $59  ; INY
+.byte $52 .byte $4F .byte $4C  ; ROL
+.byte $52 .byte $4F .byte $52  ; ROR
+.byte $52 .byte $54 .byte $49  ; RTI
+.byte $52 .byte $54 .byte $53  ; RTS
+.byte $53 .byte $42 .byte $43  ; SBC
+.byte $53 .byte $54 .byte $41  ; STA
+.byte $54 .byte $58 .byte $53  ; TXS
+.byte $54 .byte $53 .byte $58  ; TSX
+.byte $50 .byte $48 .byte $41  ; PHA
+.byte $50 .byte $4C .byte $41  ; PLA
+.byte $50 .byte $48 .byte $50  ; PHP
+.byte $50 .byte $4C .byte $50  ; PLP
+.byte $53 .byte $54 .byte $58  ; STX
+.byte $53 .byte $54 .byte $59  ; STY
 
 ; opcode directory
-.org $2000
-
-; 0 - Implied
-; 1 - Immediate
-; 2 - Zero Page
-; 3 - Zero Page, X
-; 4 - Zero Page, Y
-; 5 - Absolute
-; 6 - Absolute, X
-; 7 - Absolute, Y
-; 8 - Indrect, X
-; 9 - Indirect, Y
-; 10 - Accumulator
-; 11 - Relative
-; 12 - Absolute Indirect
-
+.org $1000
 
 ; 13 * 56 = 728
-; $2000 - $21FF~ , opcode directory
+; $1000 - $12FF , opcode directory
 ; $02 illegal placeholder, add $0D to get to next opcode
 
 ;opcode index 0
-
 ADC:
 .byte $02 ; implied
 .byte $69 ; immediate
@@ -974,79 +1021,23 @@ STY:
 .byte $02 ; relative
 .byte $02 ; absolute indirect
 
-; $4000 source code
-; $5000 output machine code program
+; END opcode directory
+; -------------------------------------
 
-; directive strings 6500-6999, first byte is total directives, then length of directive followed by characters.
-.org $6500
+; directive strings 1300-13FF, first byte is total directives, then length of directive followed by characters.
+.org $1300
 DIRECTIVES_STR: 
 .byte $03 
 .byte $03 .byte $65 .byte $6E .byte $64           ; .end
 .byte $03 .byte $6F .byte $72 .byte $67           ; .org
 .byte $04 .byte $62 .byte $79 .byte $74 .byte $65 ; .byte
 
-;opcode strings 7000 - 7099
-.org $7000   ; 
-OPCODES_STR: 
-.byte $41 .byte $44 .byte $43  ; ADC
-.byte $41 .byte $4E .byte $44  ; AND
-.byte $41 .byte $53 .byte $4C  ; ASL
-.byte $42 .byte $49 .byte $54  ; BIT
-.byte $42 .byte $50 .byte $4C  ; BPL
-.byte $42 .byte $4D .byte $49  ; BMI
-.byte $42 .byte $56 .byte $43  ; BVC
-.byte $42 .byte $56 .byte $53  ; BVS
-.byte $42 .byte $43 .byte $43  ; BCC
-.byte $42 .byte $43 .byte $53  ; BCS
-.byte $42 .byte $4E .byte $45  ; BNE
-.byte $42 .byte $45 .byte $51  ; BEQ
-.byte $42 .byte $52 .byte $4B  ; BRK
-.byte $43 .byte $4D .byte $50  ; CMP
-.byte $43 .byte $50 .byte $58  ; CPX
-.byte $43 .byte $50 .byte $59  ; CPY
-.byte $44 .byte $45 .byte $43  ; DEC
-.byte $45 .byte $4F .byte $52  ; EOR
-.byte $43 .byte $4C .byte $43  ; CLC
-.byte $53 .byte $45 .byte $43  ; SEC
-.byte $43 .byte $4C .byte $49  ; CLI
-.byte $53 .byte $45 .byte $49  ; SEI
-.byte $43 .byte $4C .byte $56  ; CLV
-.byte $43 .byte $4C .byte $44  ; CLD
-.byte $53 .byte $45 .byte $44  ; SED
-.byte $49 .byte $4E .byte $43  ; INC
-.byte $4A .byte $4D .byte $50  ; JMP
-.byte $4A .byte $53 .byte $52  ; JSR
-.byte $4C .byte $44 .byte $41  ; LDA
-.byte $4C .byte $44 .byte $58  ; LDX
-.byte $4C .byte $44 .byte $59  ; LDY
-.byte $4C .byte $53 .byte $52  ; LSR
-.byte $4E .byte $4F .byte $50  ; NOP
-.byte $4F .byte $52 .byte $41  ; ORA
-.byte $54 .byte $41 .byte $58  ; TAX
-.byte $54 .byte $58 .byte $41  ; TXA
-.byte $44 .byte $45 .byte $58  ; DEX
-.byte $49 .byte $4E .byte $58  ; INX
-.byte $54 .byte $41 .byte $59  ; TAY
-.byte $54 .byte $59 .byte $41  ; TYA
-.byte $44 .byte $45 .byte $59  ; DEY
-.byte $49 .byte $4E .byte $59  ; INY
-.byte $52 .byte $4F .byte $4C  ; ROL
-.byte $52 .byte $4F .byte $52  ; ROR
-.byte $52 .byte $54 .byte $49  ; RTI
-.byte $52 .byte $54 .byte $53  ; RTS
-.byte $53 .byte $42 .byte $43  ; SBC
-.byte $53 .byte $54 .byte $41  ; STA
-.byte $54 .byte $58 .byte $53  ; TXS
-.byte $54 .byte $53 .byte $58  ; TSX
-.byte $50 .byte $48 .byte $41  ; PHA
-.byte $50 .byte $4C .byte $41  ; PLA
-.byte $50 .byte $48 .byte $50  ; PHP
-.byte $50 .byte $4C .byte $50  ; PLP
-.byte $53 .byte $54 .byte $58  ; STX
-.byte $53 .byte $54 .byte $59  ; STY
+;dynamic label space 1400 - 1999
+.org $1400
 
-;dynamic label space 7100 - 7999
-.org $7100
+; $4000 source code
+; $5000 output machine code program
+
 
 
 ;part 2 program section
