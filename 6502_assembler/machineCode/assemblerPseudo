@@ -1490,7 +1490,6 @@ JSR INCREMENT_TGT_PTR
 JMP MAIN
 
 
-
 HANDLE_ABSOLUTE_LABEL:
 
 LDY #$05
@@ -1514,7 +1513,6 @@ JSR INCREMENT_TGT_PTR
 JMP MAIN
 
 
-
 HANDLE_BRANCH_RELATIVE:
 
 LDY #$0B
@@ -1529,9 +1527,9 @@ JSR INCREMENT_TGT_PTR
 ; find 
 ; 
 
-; target $1705 - source $0002 + 2
+; target $0305 - source $0002 + 2
 
-LDA $1705
+LDA $0305
 
 SEC
 SBC $0002
@@ -1595,7 +1593,6 @@ JMP MAIN
 
 
 
-
 HANDLE_LABEL_OPERAND:
 ;handle label Operand
 ; we either have a branch relative, or absolute address
@@ -1621,7 +1618,7 @@ STA $000F
 
 JSR FIND_LABEL
 
-; if a label was found, $1704 should be set to 1, $1705, $1706 hold the target address
+; if a label was found, $0304 should be set to 1, $0305, $0306 hold the target address
 
 LDA $0304
 CMP #$01
@@ -1799,15 +1796,6 @@ JSR INCREMENT_LABEL_PTR
 
 JMP MAIN
 
-
-; the other case of label usage is a label reference in the operand
-; its possible we don't know how to decode the label until the second pass
-; in that case we put a placeholder
-; if label still doesn't exist on the second pass, set an error code
-DECODE_BRANCH_LABEL:
-
-
-DECODE_OPERAND_LABEL:
 
 RESET_OPCODE_IDX:
 LDA #$00

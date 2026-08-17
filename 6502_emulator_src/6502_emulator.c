@@ -185,9 +185,65 @@ void ins_CMP(CPU_6502* cpu, uint16_t addr) {
     }
 }
 
+// CPX: Compare (Compares value in address to x register, sets Z flag if equal)
+void ins_CPX(CPU_6502* cpu, uint16_t addr) {
+
+    cpu->Status &= ~FLAG_Z;
+    cpu->Status &= ~FLAG_C;
+    cpu->Status &= ~FLAG_N;
+
+    uint8_t data = cpu_read(addr);
+    uint8_t result = cpu->X - data;
+    if(result == 0)
+    {
+        cpu->Status |= FLAG_Z;
+    }
+    else if(result > 0)
+    {
+        cpu->Status |= FLAG_C;
+    }else{
+        cpu->Status |= FLAG_N;
+    }
+}
+
+// CPY: Compare (Compares value in address to y register, sets Z flag if equal)
+void ins_CPX(CPU_6502* cpu, uint16_t addr) {
+
+    cpu->Status &= ~FLAG_Z;
+    cpu->Status &= ~FLAG_C;
+    cpu->Status &= ~FLAG_N;
+
+    uint8_t data = cpu_read(addr);
+    uint8_t result = cpu->Y - data;
+    if(result == 0)
+    {
+        cpu->Status |= FLAG_Z;
+    }
+    else if(result > 0)
+    {
+        cpu->Status |= FLAG_C;
+    }else{
+        cpu->Status |= FLAG_N;
+    }
+}
+
+
 // BRE: Branch Equal
 void ins_BEQ(CPU_6502* cpu, uint16_t addr) {
     if((cpu->Status & FLAG_Z) == FLAG_Z)
+    {
+        uint8_t data = cpu_read(cpu->PC);
+        cpu->PC += 1;
+        cpu->PC += data;
+    }
+    else{
+        cpu->PC += 1;
+    }
+}
+
+// BNE: Branch Not Equal
+void ins_BNE(CPU_6502* cpu, uint16_t addr) {
+    if((cpu->Status & FLAG_Z) != FLAG_Z)
     {
         uint8_t data = cpu_read(cpu->PC);
         cpu->PC += 1;
@@ -271,6 +327,11 @@ void ins_INC(CPU_6502* cpu, uint16_t addr) {
     RAM[addr]++;
 }
 
+// INX: increment x register
+void ins_INC(CPU_6502* cpu, uint16_t addr) {
+    cpu->X++;
+}
+
 // ============================================================================
 // 5. INSTRUCTION LOOKUP TABLE & EMULATION LOOP
 // ============================================================================
@@ -310,11 +371,23 @@ void initialize_opcode_matrix() {
     opcode_matrix[0x8D] = (Instruction){ ins_STA, mode_ABS, 4}; // STA Absolute
     opcode_matrix[0x9D] = (Instruction){ ins_STA, mode_ABX, 5}; // STA Absolute X
     opcode_matrix[0xF0] = (Instruction){ ins_BEQ, mode_REL, 2}; // Branch Equal  
+    opcode_matrix[0xD0] = (Instruction){ ins_BNE, mode_REL, 2}; // Branch Not Equal 
     opcode_matrix[0xEE] = (Instruction){ ins_INC, mode_ABS, 3}; // INC Absolute 
     opcode_matrix[0x4C] = (Instruction){ ins_JMP, mode_ABS, 3}; // JMP Absolute 
-
+    opcode_matrix[0xE0] = (Instruction){ ins_CPX, mode_IMM, 2 }; // CPX Immediate
+    opcode_matrix[0xEC] = (Instruction){ ins_CPX, mode_ABS, 4 }; // CPX Absolute
+    opcode_matrix[0xC0] = (Instruction){ ins_CPY, mode_IMM, 2 }; // CPY Immediate
+    opcode_matrix[0xCC] = (Instruction){ ins_CPY, mode_ABS, 4 }; // CPY Absolute
+    opcode_matrix[0xEE] = (Instruction){ ins_INC, NULL, 2}; // INX Implied 
 
 }
+
+// currently supported instructions
+// ADC, JSR, RTS, BRK, CMP, PHA, PLA, LDY, LDA, LDX, CLC, STA, BEQ, INC, JMP
+
+// instructions used in assembler pseudo
+// ADC, JSR, RTS, BRK, CMP, PHA, PLA, LDY, LDA, LDX, CLC, STA, BEQ, INC, JMP
+// ORA, BCS, SEC, SBC, INY, INX, ASL,
 
 // Master Execution Loop
 void step_cpu(CPU_6502* cpu) {
