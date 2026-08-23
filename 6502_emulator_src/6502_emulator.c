@@ -164,6 +164,37 @@ void ins_ADC(CPU_6502* cpu, uint16_t addr) {
     set_zn(cpu, cpu->A);
 }
 
+void ins_SBC(CPU_6502* cpu, uint16_t addr) {
+    uint8_t data = cpu_read(addr);
+    
+    // Invert the data bits to turn subtraction into addition (Two's Complement)
+    uint8_t inverted_data = ~data;
+    
+    // The Carry flag acts as the inverse of a "Borrow" bit
+    uint8_t carry = (cpu->Status & FLAG_C) ? 1 : 0;
+    
+    // Perform standard 16-bit addition using the inverted data
+    uint16_t sum = cpu->A + inverted_data + carry;
+
+    // Set Carry flag (Acts as "No Borrow"). 
+    // If sum > 0xFF, it means NO borrow occurred, so Carry is Set.
+    if (sum > 0xFF) cpu->Status |= FLAG_C; else cpu->Status &= ~FLAG_C;
+
+    // Signed Overflow Formula: Uses the exact same logic as ADC, 
+    // but checks against the INVERTED data byte.
+    if (~(cpu->A ^ inverted_data) & (cpu->A ^ sum) & 0x80) {
+        cpu->Status |= FLAG_V;
+    } else {
+        cpu->Status &= ~FLAG_V;
+    }
+
+    // Save the final lower 8 bits to the accumulator
+    cpu->A = (uint8_t)(sum & 0xFF);
+    
+    // Update Zero and Negative status flags
+    set_zn(cpu, cpu->A);
+}
+
 // CMP: Compare (Compares value in address to accumulator, sets Z flag if equal)
 void ins_CMP(CPU_6502* cpu, uint16_t addr) {
 
@@ -207,7 +238,7 @@ void ins_CPX(CPU_6502* cpu, uint16_t addr) {
 }
 
 // CPY: Compare (Compares value in address to y register, sets Z flag if equal)
-void ins_CPX(CPU_6502* cpu, uint16_t addr) {
+void ins_CPY(CPU_6502* cpu, uint16_t addr) {
 
     cpu->Status &= ~FLAG_Z;
     cpu->Status &= ~FLAG_C;
@@ -244,6 +275,19 @@ void ins_BEQ(CPU_6502* cpu, uint16_t addr) {
 // BNE: Branch Not Equal
 void ins_BNE(CPU_6502* cpu, uint16_t addr) {
     if((cpu->Status & FLAG_Z) != FLAG_Z)
+    {
+        uint8_t data = cpu_read(cpu->PC);
+        cpu->PC += 1;
+        cpu->PC += data;
+    }
+    else{
+        cpu->PC += 1;
+    }
+}
+
+// BCS: Branch Carry Set
+void ins_BCS(CPU_6502* cpu, uint16_t addr) {
+    if((cpu->Status & FLAG_C) == FLAG_C)
     {
         uint8_t data = cpu_read(cpu->PC);
         cpu->PC += 1;
@@ -317,6 +361,11 @@ void ins_CLC(CPU_6502* cpu, uint16_t addr) {
     cpu->Status &= ~FLAG_C;
 }
 
+//SEC: Set Carry Bit
+void ins_SEC(CPU_6502* cpu, uint16_t addr) {
+    cpu->Status |= FLAG_C;
+}
+
 // STA: store accumulator at address
 void ins_STA(CPU_6502* cpu, uint16_t addr) {
     RAM[addr] = cpu->A;
@@ -328,9 +377,45 @@ void ins_INC(CPU_6502* cpu, uint16_t addr) {
 }
 
 // INX: increment x register
-void ins_INC(CPU_6502* cpu, uint16_t addr) {
+void ins_INX(CPU_6502* cpu, uint16_t addr) {
     cpu->X++;
 }
+
+// INY: increment y register
+void ins_INY(CPU_6502* cpu, uint16_t addr) {
+    cpu->Y++;
+}
+
+// ASL: arithmetic shift left
+void ins_ASL(CPU_6502* cpu, uint16_t addr) {
+
+  // if 7th bit is 1, set carry as well
+  uint8_t sevenBit = 1 << 7;
+   // if addr is 0, this is accumulator case, assume we never shift address 0
+   if(addr == 0)
+   {
+     if((sevenBit & cpu->A) == sevenBit)
+     {
+       cpu->Status |= FLAG_C;
+     }
+     cpu->A = cpu->A << 1;
+   }
+   else
+   {
+    if((sevenBit & RAM[addr]) == sevenBit)
+     {
+       cpu->Status |= FLAG_C;
+     }
+     RAM[addr] = RAM[addr] << 1;
+   }
+}
+
+// ORA: bitwise or with accumulator
+void ins_ORA(CPU_6502* cpu, uint16_t addr) {
+    uint8_t data = cpu_read(cpu->PC);
+    cpu->A |= data;
+}
+
 
 // ============================================================================
 // 5. INSTRUCTION LOOKUP TABLE & EMULATION LOOP
@@ -378,16 +463,23 @@ void initialize_opcode_matrix() {
     opcode_matrix[0xEC] = (Instruction){ ins_CPX, mode_ABS, 4 }; // CPX Absolute
     opcode_matrix[0xC0] = (Instruction){ ins_CPY, mode_IMM, 2 }; // CPY Immediate
     opcode_matrix[0xCC] = (Instruction){ ins_CPY, mode_ABS, 4 }; // CPY Absolute
-    opcode_matrix[0xEE] = (Instruction){ ins_INC, NULL, 2}; // INX Implied 
-
+    opcode_matrix[0xE8] = (Instruction){ ins_INX, NULL, 2}; // INX Implied 
+    opcode_matrix[0xC8] = (Instruction){ ins_INY, NULL, 2}; // INX Implied 
+    opcode_matrix[0x09] = (Instruction){ ins_ORA, mode_IMM, 2 }; // ORA Immediate
+    opcode_matrix[0x0D] = (Instruction){ ins_ORA, mode_ABS, 4 }; // ORA Absolute
+    opcode_matrix[0x1D] = (Instruction){ ins_ORA, mode_ABX, 4 }; // ORA Absolute,X
+    opcode_matrix[0x11] = (Instruction){ ins_ORA, mode_IND_Y, 5 }; // ORA Indirect, Y
+    opcode_matrix[0xB0] = (Instruction){ ins_BCS, mode_REL, 2}; // Branch Carry Set
+    opcode_matrix[0x38] = (Instruction){ ins_SEC, NULL, 2}; // Set Carry
+    opcode_matrix[0xE9] = (Instruction){ ins_SBC, mode_IMM, 2 }; // SBC Immediate
+    opcode_matrix[0xED] = (Instruction){ ins_SBC, mode_ABS, 4 }; // SBC Absolute
+    opcode_matrix[0xFD] = (Instruction){ ins_SBC, mode_ABX, 4 }; // SBC Absolute, X
+    opcode_matrix[0xF1] = (Instruction){ ins_SBC, mode_IND_Y, 5 }; // SBC indirect Y
+    opcode_matrix[0x0A] = (Instruction){ ins_ASL, NULL, 2}; // ASL Accumulator 
+    opcode_matrix[0x0E] = (Instruction){ ins_ASL, mode_ABS, 6}; // ASL Absolute
+    opcode_matrix[0x1E] = (Instruction){ ins_ASL, mode_ABX, 7}; // ASL Absolute,X
 }
 
-// currently supported instructions
-// ADC, JSR, RTS, BRK, CMP, PHA, PLA, LDY, LDA, LDX, CLC, STA, BEQ, INC, JMP
-
-// instructions used in assembler pseudo
-// ADC, JSR, RTS, BRK, CMP, PHA, PLA, LDY, LDA, LDX, CLC, STA, BEQ, INC, JMP
-// ORA, BCS, SEC, SBC, INY, INX, ASL,
 
 // Master Execution Loop
 void step_cpu(CPU_6502* cpu) {
