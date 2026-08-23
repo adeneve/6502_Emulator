@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "6502_loader.h"
 
 // ============================================================================
 // 1. CPU STRUCTURE & STATE DEFINITIONS
