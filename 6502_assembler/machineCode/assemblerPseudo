@@ -171,15 +171,15 @@ ASL:
 BIT:
 .byte $02 ; implied
 .byte $02 ; immediate
-.byte $06 ; zero page
-.byte $16 ; zero page, X
+.byte $24 ; zero page
+.byte $02 ; zero page, X
 .byte $02 ; zero page, Y
-.byte $0E ; absolute
-.byte $1E ; absolute, X
+.byte $02 ; absolute
+.byte $02 ; absolute, X
 .byte $02 ; absolute, Y
 .byte $02 ; indirect, x
 .byte $02 ; indirect, y
-.byte $0A ; accumulator
+.byte $02 ; accumulator
 .byte $02 ; relative
 .byte $02 ; absolute indirect
 
@@ -217,22 +217,6 @@ BMI:
 .byte $02 ; absolute indirect
 
 ;opcode index 6
-BMI:
-.byte $02 ; implied
-.byte $02 ; immediate
-.byte $02 ; zero page
-.byte $02 ; zero page, X
-.byte $02 ; zero page, Y
-.byte $02 ; absolute
-.byte $02 ; absolute, X
-.byte $02 ; absolute, Y
-.byte $02 ; indirect, x
-.byte $02 ; indirect, y
-.byte $02 ; accumulator
-.byte $30 ; relative
-.byte $02 ; absolute indirect
-
-;opcode index 7
 BVC:
 .byte $02 ; implied
 .byte $02 ; immediate
@@ -248,7 +232,7 @@ BVC:
 .byte $50 ; relative
 .byte $02 ; absolute indirect
 
-;opcode index 8
+;opcode index 7
 BVS:
 .byte $02 ; implied
 .byte $02 ; immediate
@@ -264,7 +248,7 @@ BVS:
 .byte $70 ; relative
 .byte $02 ; absolute indirect
 
-;opcode index 9
+;opcode index 8
 BCC:
 .byte $02 ; implied
 .byte $02 ; immediate
@@ -281,7 +265,7 @@ BCC:
 .byte $02 ; absolute indirect
 
 
-;opcode index 10
+;opcode index 9
 BCS:
 .byte $02 ; implied
 .byte $02 ; immediate
@@ -297,7 +281,7 @@ BCS:
 .byte $B0 ; relative
 .byte $02 ; absolute indirect
 
-;opcode index 11
+;opcode index 10
 BNE:
 .byte $02 ; implied
 .byte $02 ; immediate
@@ -313,7 +297,7 @@ BNE:
 .byte $D0 ; relative
 .byte $02 ; absolute indirect
 
-;opcode index 12
+;opcode index 11
 BEQ:
 .byte $02 ; implied
 .byte $02 ; immediate
@@ -331,7 +315,7 @@ BEQ:
 
 ; end branch instructions
 
-;opcode index 13
+;opcode index 12
 BRK:
 .byte $00 ; implied
 .byte $02 ; immediate
@@ -347,7 +331,7 @@ BRK:
 .byte $02 ; relative
 .byte $02 ; absolute indirect
 
-;opcode index 14
+;opcode index 13
 CMP:
 .byte $02 ; implied
 .byte $C9 ; immediate
@@ -363,7 +347,7 @@ CMP:
 .byte $02 ; relative
 .byte $02 ; absolute indirect
 
-;opcode index 15
+;opcode index 14
 CPX:
 .byte $02 ; implied
 .byte $E0 ; immediate
@@ -379,7 +363,7 @@ CPX:
 .byte $02 ; relative
 .byte $02 ; absolute indirect
 
-;opcode index 16
+;opcode index 15
 CPY:
 .byte $02 ; implied
 .byte $C0 ; immediate
@@ -395,7 +379,7 @@ CPY:
 .byte $02 ; relative
 .byte $02 ; absolute indirect
 
-;opcode index 17
+;opcode index 16
 DEC:
 .byte $02 ; implied
 .byte $02 ; immediate
@@ -411,7 +395,7 @@ DEC:
 .byte $02 ; relative
 .byte $02 ; absolute indirect
 
-;opcode index 18
+;opcode index 17
 EOR:
 .byte $02 ; implied
 .byte $49 ; immediate
@@ -427,7 +411,7 @@ EOR:
 .byte $02 ; relative
 .byte $02 ; absolute indirect
 
-;opcode index 19
+;opcode index 18
 CLC:
 .byte $18 ; implied
 .byte $02 ; immediate
@@ -443,7 +427,7 @@ CLC:
 .byte $02 ; relative
 .byte $02 ; absolute indirect
 
-;opcode index 20
+;opcode index 19
 SEC:
 .byte $38 ; implied
 .byte $02 ; immediate
@@ -459,7 +443,7 @@ SEC:
 .byte $02 ; relative
 .byte $02 ; absolute indirect
 
-;opcode index 21
+;opcode index 20
 CLI:
 .byte $58 ; implied
 .byte $02 ; immediate
@@ -475,7 +459,7 @@ CLI:
 .byte $02 ; relative
 .byte $02 ; absolute indirect
 
-;opcode index 22
+;opcode index 21
 SEI:
 .byte $78 ; implied
 .byte $02 ; immediate
@@ -491,7 +475,7 @@ SEI:
 .byte $02 ; relative
 .byte $02 ; absolute indirect
 
-;opcode index 23
+;opcode index 22
 CLV:
 .byte $B8 ; implied
 .byte $02 ; immediate
@@ -507,7 +491,7 @@ CLV:
 .byte $02 ; relative
 .byte $02 ; absolute indirect
 
-;opcode index 24
+;opcode index 23
 CLD:
 .byte $D8 ; implied
 .byte $02 ; immediate
@@ -523,7 +507,7 @@ CLD:
 .byte $02 ; relative
 .byte $02 ; absolute indirect
 
-;opcode index 25
+;opcode index 24
 SED:
 .byte $F8 ; implied
 .byte $02 ; immediate
@@ -539,7 +523,7 @@ SED:
 .byte $02 ; relative
 .byte $02 ; absolute indirect
 
-;opcode index 26
+;opcode index 25
 INC:
 .byte $02 ; implied
 .byte $02 ; immediate
@@ -555,7 +539,7 @@ INC:
 .byte $02 ; relative
 .byte $02 ; absolute indirect
 
-;opcode index 27
+;opcode index 26
 JMP:
 .byte $02 ; implied
 .byte $02 ; immediate
@@ -571,7 +555,7 @@ JMP:
 .byte $02 ; relative
 .byte $6C ; absolute indirect
 
-;opcode index 28
+;opcode index 27
 JSR:
 .byte $02 ; implied
 .byte $02 ; immediate
@@ -587,7 +571,7 @@ JSR:
 .byte $02 ; relative
 .byte $02 ; absolute indirect
 
-;opcode index 29
+;opcode index 28
 LDA:
 .byte $02 ; implied
 .byte $A9 ; immediate
@@ -603,7 +587,7 @@ LDA:
 .byte $02 ; relative
 .byte $02 ; absolute indirect
 
-;opcode index 30
+;opcode index 29
 LDX:
 .byte $02 ; implied
 .byte $A2 ; immediate
@@ -619,7 +603,7 @@ LDX:
 .byte $02 ; relative
 .byte $02 ; absolute indirect
 
-;opcode index 31
+;opcode index 30
 LDY:
 .byte $02 ; implied
 .byte $A0 ; immediate
@@ -632,6 +616,22 @@ LDY:
 .byte $02 ; indirect, x
 .byte $02 ; indirect, y
 .byte $02 ; accumulator
+.byte $02 ; relative
+.byte $02 ; absolute indirect
+
+;opcode index 31
+LSR:
+.byte $02 ; implied
+.byte $02 ; immediate
+.byte $46 ; zero page
+.byte $56 ; zero page, X
+.byte $02 ; zero page, Y
+.byte $4E ; absolute
+.byte $5E ; absolute, X
+.byte $02 ; absolute, Y
+.byte $02 ; indirect, x
+.byte $02 ; indirect, y
+.byte $4A ; accumulator
 .byte $02 ; relative
 .byte $02 ; absolute indirect
 
