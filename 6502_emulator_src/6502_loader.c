@@ -50,6 +50,16 @@ void load_assembler(uint8_t* RAM){
   RAM[0x0012] = 0x00;
   RAM[0x0013] = 0x13;
 
+  // 0x0100 - 0x01FF stack space
+
+  // 0x0200 source token
+  // 0x0300 operand
+
+  // 0x0400 - scratch space
+
+  // 0x0900 - error codes
+
+
   //opcode strings, 0F00 - ~0FFF
   const char* ordered_mnemonics[] = {
       "ADC", "AND", "ASL", "BIT", "BPL", "BMI", "BVC", "BVS", "BCC", "BCS", "BNE", "BEQ", "BRK",
@@ -363,5 +373,101 @@ void load_assembler(uint8_t* RAM){
 
   // Directives str
 
+  RAM[0x1300] = 0x03
+
+  // .end
+  RAM[0x1301] = 0x03;
+  RAM[0x1302] = 0x65; RAM[0x1303] = 0x6E; RAM[0x1304] = 0x64;
+
+  // .org
+  RAM[0x1305] = 0x03;
+  RAM[0x1306] = 0x6F; RAM[0x1307] = 0x72; RAM[0x1308] = 0x67;
+
+  // .byte
+  RAM[0x1309] = 0x04;
+  RAM[0x130A] = 0x62; RAM[0x130B] = 0x79; RAM[0x130C] = 0x74; RAM[0x130D] = 0x65;
+
+  // END Directives
+
+  // 0x1400 - 0x1999 label space
+
+  // 0x4000 source assembly
+
+  // 0x5000 output machine code
+
+
+  // PROGRAM SECTION , 0x8000
+
+  // LABEL: MAIN
+  // RAM[0x8000] = JSR RESET_OPCODE_IDX
+  // RAM[0x8001]  low addr
+  // RAM[0x8002]   high addr
+
+  // RAM[0x8003] = JSR SKIP_SPACES_COMMENTS
+  // RAM[0x8004]  low addr
+  // RAM[0x8005]   high addr
+
+  // LABEL: PARSE TOKEN
+
+  // LDY #$00
+  RAM[0x8006] = 0xA0;
+  RAM[0x8007] = 0x00;
+
+  // LDA ($00),Y
+  RAM[0x8008] = 0xB1;
+  RAM[0x8009] = 0x00;
+
+  // CMP #$20
+  RAM[0x800A] = 0xC9;
+  RAM[0x800B] = 0x20;
+
+
+  // $100 - bytes to jump back , if branching backwards
+  // max range of 127 bytes in either direction
+  // use BNE with JMP if need to jump further
+  // keep in mind + 2 byte offset by the time PC has advanced
+  // BEQ PARSE_OPCODE_ENTRY_LABEL_TOKEN
+  RAM[0x800C] = 0xF0;
+  //RAM[0x800D] = 0x20;
+
+  // CMP #$0A 
+  RAM[0x800E] = 0xC9;
+  RAM[0x800F] = 0x0A;
+
+  // BEQ PARSE_OPCODE_ENTRY_LABEL_TOKEN
+  RAM[0x8010] = 0xF0;
+  //RAM[0x8011] = 0x20;
+
+  // CMP #$2E '.'
+  RAM[0x8012] = 0xC9;
+  RAM[0x8013] = 0x2E;
+
+  // BNE SKIP_DIRECTIVES
+  RAM[0x8014] = 0xF0;
+  RAM[0x8015] = 0x03;
+
+  // JMP HANDLE_DIRECTIVES
+  RAM[0x8016] = 0x4C;
+  //RAM[0x8017] = 0x00;
+  //RAM[0x8018] = 0X00;
+
+  // PHA
+  RAM[0x8019] = 0x48;
+
+  // JSR INCREMENT_SOURCE_PTR
+  RAM[0x801A] = 0x20;
+  //RAM[0x801B] = 0x00 low
+  //RAM[0x801C] == 0x00 high
+
+  // PLA
+  RAM[0x801D] = 0x68;
+
+  // LDX
+  RAM[0x801E] = 0xAE;
+  RAM[0x801F] = 0x00;
+  RAM[0x8020] = 0x02;
+
+  // source token / operand memory must move
+  // out of stack space
 
 }

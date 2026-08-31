@@ -260,13 +260,13 @@ void ins_CPY(CPU_6502* cpu, uint16_t addr) {
 }
 
 
-// BRE: Branch Equal
+// BEQ: Branch Equal
 void ins_BEQ(CPU_6502* cpu, uint16_t addr) {
     if((cpu->Status & FLAG_Z) == FLAG_Z)
     {
         uint8_t data = cpu_read(cpu->PC);
         cpu->PC += 1;
-        cpu->PC += data;
+        cpu->PC += (int8_t)data;
     }
     else{
         cpu->PC += 1;
