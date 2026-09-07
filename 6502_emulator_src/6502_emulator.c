@@ -279,7 +279,7 @@ void ins_BNE(CPU_6502* cpu, uint16_t addr) {
     {
         uint8_t data = cpu_read(cpu->PC);
         cpu->PC += 1;
-        cpu->PC += data;
+        cpu->PC += (int8_t)data;
     }
     else{
         cpu->PC += 1;
@@ -292,7 +292,7 @@ void ins_BCS(CPU_6502* cpu, uint16_t addr) {
     {
         uint8_t data = cpu_read(cpu->PC);
         cpu->PC += 1;
-        cpu->PC += data;
+        cpu->PC += (int8_t)data;
     }
     else{
         cpu->PC += 1;
